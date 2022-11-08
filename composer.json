@@ -1,0 +1,33 @@
+{
+    "name": "newelement/dmp-kscape",
+    "description": "Kscape plugin for DMP",
+    "license": "GPL-2.0-or-later",
+    "homepage": "http://github.com/newelement/dmp-kscape",
+    "authors": [
+        {
+            "name": "Don Jones",
+            "email": "newelementdesigns@me.com"
+        }
+    ],
+    "require": {
+        "newelement/digital-movie-poster": "*"
+    },
+    "autoload": {
+        "psr-4": {
+            "Newelement\\DmpKscape\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Newelement\\DmpKscape\\Tests\\": "tests"
+        }
+    },
+    "minimum-stability": "stable",
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Newelement\\DmpKscape\\DmpKscapeServiceProvider"
+            ]
+        }
+    }
+}
