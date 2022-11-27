@@ -1,8 +1,8 @@
 {
-    "name": "newelement/dmp-kscape",
+    "name": "newelement/dmp-kaleidescape",
     "description": "Kscape plugin for DMP",
     "license": "GPL-2.0-or-later",
-    "homepage": "http://github.com/newelement/dmp-kscape",
+    "homepage": "http://github.com/newelement/dmp-kaleidescape",
     "authors": [
         {
             "name": "Don Jones",
