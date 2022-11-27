@@ -4,8 +4,9 @@ namespace Newelement\DmpKscape;
 
 use Illuminate\Routing\Router;
 use Illuminate\Support\ServiceProvider;
-use Illuminate\Console\Scheduling\Schedule;
+//use Illuminate\Console\Scheduling\Schedule;
 use App\Facades\PluginFacade as Plugin;
+use Newelement\DmpKscape\Services\KscapeMediaSyncService;
 
 class DmpKscapeServiceProvider extends ServiceProvider
 {
@@ -46,11 +47,12 @@ class DmpKscapeServiceProvider extends ServiceProvider
 
         $this->app->booted(function () {
             // Optional set a command to run on a schedule
-            $schedule = $this->app->make(Schedule::class);
+            //$schedule = $this->app->make(Schedule::class);
             //$schedule->command('dmp-kscape:sync')->dailyAt('03:00');
         });
 
         $this->registerPlugin();
+        $this->connectToDevice();
     }
 
     /**
@@ -76,5 +78,11 @@ class DmpKscapeServiceProvider extends ServiceProvider
         ];
 
         Plugin::register($pluginInfo);
+    }
+
+    private function connectToDevice()
+    {
+        $service = new KscapeMediaSyncService();
+        $service->tcpConnect();
     }
 }
