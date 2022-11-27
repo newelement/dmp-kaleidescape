@@ -128,6 +128,17 @@ class KscapeMediaSyncService implements MediaSyncInterface
 
 	public function tcpConnect()
 	{
+		set_time_limit(0);
+
+		$host = '192.168.86.47';
+		$port = '10000';
+		$socket = socket_create(AF_INET, SOCK_STREAM, 0);
+		socket_connect($socket, $host, $port);
+
+		$message = "02/0/GET_PLAY_STATUS:\n";
+		socket_write($socket, $message, strlen($message));
+		$result = socket_read($socket, 1024);
+		\Log::info("Reply From Server  :".$result);
 	}
 
 	public function syncMedia($page = 0)
