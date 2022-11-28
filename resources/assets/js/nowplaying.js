@@ -12,7 +12,7 @@ function setKscapeNowPlaying(playing) {
 function setKscapeStoppedPlaying() {
     isPlaying = false;
     axios
-        .post('/api/stopped', { service: 'dmp-kscape' })
+        .post('/api/stopped', { mediaSource: 'dmp-kscape' })
         .then(() => {})
         .catch(() => {});
 }
@@ -23,7 +23,16 @@ function getNowPlaying() {
         .then((response) => {
             console.log(response);
             if (response.data.playing && !isPlaying) {
-                setKscapeNowPlaying(response.data.playing);
+                let data = response.data.playing;
+                let playing = {
+                    mediaSource: 'dmp-kscape',
+                    mediaType: 'movie',
+                    audienceRating: data.audience_rating,
+                    contentRating: data.mpaa_rating,
+                    duration: data.runtime,
+                };
+
+                setKscapeNowPlaying(playing);
             }
         })
         .catch((response) => {
