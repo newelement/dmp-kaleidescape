@@ -52,7 +52,6 @@ class DmpKscapeServiceProvider extends ServiceProvider
         });
 
         $this->registerPlugin();
-        $this->connectToDevice();
     }
 
     /**
@@ -78,11 +77,5 @@ class DmpKscapeServiceProvider extends ServiceProvider
         ];
 
         Plugin::register($pluginInfo);
-    }
-
-    private function connectToDevice()
-    {
-        $service = new KscapeMediaSyncService();
-        $service->tcpConnect();
     }
 }

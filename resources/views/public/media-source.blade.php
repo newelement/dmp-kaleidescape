@@ -1,28 +1,28 @@
 <div class="py-4">
-	<h4 class="text-2xl font-bold mb-4">Kscape Settings</h4>
+	<h4 class="text-2xl font-bold mb-4">Kaleidescape Settings</h4>
 
 	<form action="/dmp-kscape/settings" method="post">
 		@csrf
 		@method('put')
 		<div class="mb-5">
 			<label for="kscape-server-url" class="block mb-2 font-bold"
-				>Kscape Server URL</label
+				>IP Address</label
 			>
 			<input
 				type="text"
 				class="w-full mb-2"
 				id="kscape-server-url"
 				aria-describedby="kscape-server-urlHelp"
-				name="kscape_url"
-				value="{{ $options['kscape_url'] }}"
+				name="kscape_ip_address"
+				value="{{ $options['kscape_ip_address'] }}"
 				required
 			/>
-			<div id="kscape-server-urlHelp" class="text-gray-400 text-sm">Ex: localhost, 10.0.0.32</div>
+			<div id="kscape-server-urlHelp" class="text-gray-400 text-sm">Ex: 10.0.0.32</div>
 		</div>
 
 		<div class="mb-5">
 			<label for="kscape-server-port" class="block mb-2 font-bold"
-				>Kscape Server Port</label
+				>Port</label
 			>
 			<input
 				type="text"
@@ -38,48 +38,50 @@
 
 		<div class="mb-5">
 			<label for="kscape-socket-port" class="block mb-2 font-bold"
-				>Kscape Socket Port</label
+				>Control Protocol Device ID (CPD ID)</label
 			>
 			<input
 				type="text"
 				class="w-full mb-2"
 				id="kscape-socket-port"
 				aria-describedby="kscape-socket-portHelp"
-				name="kscape_socket_port"
-				value="{{ $options['kscape_socket_port'] }}"
+				name="kscape_cpdid"
+				value="{{ $options['kscape_cpdid'] }}"
+                required
 			/>
 			<div id="kscape-socket-portHelp" class="text-gray-400 text-sm"></div>
 		</div>
 
 		<div class="mb-5">
 			<label for="kscape-username" class="block mb-2 font-bold"
-				>Kscape Username</label
+				>Passcode</label
 			>
 			<input
 				type="text"
 				class="w-full mb-2"
 				id="kscape-username"
 				aria-describedby="kscape-usernameHelp"
-				name="kscape_username"
-				value="{{ $options['kscape_username'] }}"
+				name="kscape_passcode"
+				value="{{ $options['kscape_passcode'] }}"
 			/>
-			<div id="kscape-usernameHelp" class="text-gray-400 text-sm">Optional. Only if you have setup authentication.</div>
+			<div id="kscape-usernameHelp" class="text-gray-400 text-sm">Optional. Only if you have a passcode setup in Kaleidescape</div>
 		</div>
 
+        <!--
 		<div class="mb-5">
 			<label for="kscape-password" class="block mb-2 font-bold"
-				>Kscape Password</label
+				>Use SSL for IP Address</label
 			>
 			<input
 				type="password"
 				class="w-full mb-2"
 				id="kscape-password"
 				aria-describedby="kscape-passwordHelp"
-				name="kscape_password"
-				value="{{ $options['kscape_password'] }}"
+				name="kscape_use_ssl"
+				value="{{ $options['kscape_use_ssl'] }}"
 			/>
-			<div id="kscape-passwordHelp" class="text-gray-400 text-sm">Optional. Only if you have setup authentication.</div>
-		</div>
+			<div id="kscape-passwordHelp" class="text-gray-400 text-sm"></div>
+		</div>-->
 
 		<button type="submit" class="btn-primary">Save</button>
 	</form>

@@ -1,72 +1,69 @@
 let kscapeSettings = {};
-let kscapePlaying = false;
+let isPlaying = false;
 
 function setKscapeNowPlaying(playing) {
+    isPlaying = true;
     axios
         .post('/api/now-playing', playing)
         .then(() => {})
         .catch(() => {});
 }
 
-function getKscapeNowPlaying() {
-    axios
-        .get('/api/dmp-kscape-now-playing')
-        .then((response) => {
-            let playing = {
-                poster: decodeURIComponent(
-                    response.data[1].result.item.art.poster.replace('image://', '').slice(0, -1)
-                ),
-                contentRating: response.data[0].result.item.mpaa.replace('Rated ', ''),
-                audienceRating: response.data[0].result.item.rating,
-                duration: response.data[0].result.item.runtime / 60,
-                mediaType: 'movie',
-            };
-
-            setKscapeNowPlaying(playing);
-        })
-        .catch(() => {});
-}
-
 function setKscapeStoppedPlaying() {
-    kscapePlaying = false;
+    isPlaying = false;
     axios
-        .post('/api/stopped')
+        .post('/api/stopped', { service: 'dmp-kscape' })
         .then(() => {})
         .catch(() => {});
 }
 
-function startKscapeSocket() {
-    const socket = new WebSocket(
-        'ws://' + kscapeSettings.kscape_url + ':' + kscapeSettings.kscape_socket_port
-    );
-
-    socket.addEventListener('open', () => {});
-
-    socket.addEventListener('message', (event) => {
-        const data = JSON.parse(event.data);
-        if (data.method === 'Player.OnPlay' && data.params.data.item.type === 'movie') {
-            if (!kscapePlaying) {
-                getKscapeNowPlaying();
+function getNowPlaying() {
+    axios
+        .get('/api/dmp-kscape-now-playing')
+        .then((response) => {
+            console.log(response);
+            if (response.data.playing && !isPlaying) {
+                setKscapeNowPlaying(response.data.playing);
             }
-            kscapePlaying = true;
-        }
-
-        if (data.method === 'Player.OnStop' && data.params.data.item.type === 'movie') {
-            kscapePlaying = false;
-            setKscapeStoppedPlaying();
-        }
-    });
+        })
+        .catch((response) => {
+            console.log(response);
+        });
 }
 
-document.addEventListener('DOMContentLoaded', function () {
+function startKscapeSocket() {
+    axios
+        .get('/api/dmp-kscape-status')
+        .then((response) => {
+            console.log(response);
+            if (response.data.status === 'playing' && !isPlaying) {
+                getNowPlaying();
+            } else if (response.data.status === 'stopped' && isPlaying) {
+                setKscapeStoppedPlaying();
+            }
+        })
+        .catch((response) => {
+            console.log(response);
+        });
+}
+
+function getKscapeSettings() {
     axios
         .get('/api/dmp-kscape-settings')
         .then((response) => {
             kscapeSettings = response.data;
-            startKscapeSocket();
+            setInterval(() => {
+                startKscapeSocket();
+            }, 3000);
         })
         .catch((response) => {
             console.log(response);
-            console.log('COULD NOT GET KODI SETTINGS');
+            console.log('COULD NOT GET Kaleidescape SETTINGS');
         });
+}
+
+document.addEventListener('DOMContentLoaded', function () {
+    setTimeout(() => {
+        getKscapeSettings();
+    }, 3000);
 });

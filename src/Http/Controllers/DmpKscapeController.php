@@ -8,29 +8,34 @@ use Newelement\DmpKscape\Services\KscapeMediaSyncService;
 
 class DmpKscapeController extends Controller
 {
-	public function install(KscapeMediaSyncService $service)
-	{
-		return $service->install();
-	}
+    public function install(KscapeMediaSyncService $service)
+    {
+        return $service->install();
+    }
 
-	public function update()
-	{
-		//
-	}
+    public function update()
+    {
+        //
+    }
 
-	public function getSettings(KscapeMediaSyncService $service)
-	{
-		return $service->getSettings();
-	}
+    public function getSettings(KscapeMediaSyncService $service)
+    {
+        return $service->getSettings();
+    }
 
-	public function updateSettings(Request $request, KscapeMediaSyncService $service)
-	{
-		$service->updateSettings($request);
-		return redirect()->back()->with('success', 'Kscape settings updated');
-	}
+    public function getStatus(KscapeMediaSyncService $service)
+    {
+        return ['status' => $service->getStatus()];
+    }
 
-	public function getNowPlaying(KscapeMediaSyncService $service)
-	{
-		return $service->nowPlaying();
-	}
+    public function updateSettings(Request $request, KscapeMediaSyncService $service)
+    {
+        $service->updateSettings($request);
+        return redirect()->back()->with('success', 'Kscape settings updated');
+    }
+
+    public function getNowPlaying(KscapeMediaSyncService $service)
+    {
+        return ['playing' => $service->nowPlaying()];
+    }
 }
