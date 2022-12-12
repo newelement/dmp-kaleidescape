@@ -77,6 +77,12 @@ class KscapeMediaSyncService implements MediaSyncInterface
                 'value' => false,
                 'field_name' => 'kscape_use_ssl',
                 'plugin_key' => 'dmp-kscape',
+            ],
+            [
+                'type' => 'boolean',
+                'value' => false,
+                'field_name' => 'kscape_use_poster',
+                'plugin_key' => 'dmp-kscape',
             ]
         ];
 
@@ -98,6 +104,7 @@ class KscapeMediaSyncService implements MediaSyncInterface
         $this->kscapeSettings['kscape_cpdid'] = Plugin::getOptionValue('kscape_cpdid');
         $this->kscapeSettings['kscape_passcode'] = Plugin::getOptionValue('kscape_passcode');
         $this->kscapeSettings['kscape_use_ssl'] = Plugin::getOptionValue('kscape_use_ssl');
+        $this->kscapeSettings['kscape_use_poster'] = (bool) Plugin::getOptionValue('kscape_use_poster');
     }
 
     public function getSettings()
@@ -111,6 +118,7 @@ class KscapeMediaSyncService implements MediaSyncInterface
         Plugin::updateOption('kscape_port', $request->kscape_port);
         Plugin::updateOption('kscape_cpdid', $request->kscape_cpdid);
         Plugin::updateOption('kscape_passcode', $request->kscape_passcode);
+        Plugin::updateOption('kscape_use_poster', $request->boolean('kscape_use_poster'));
         //Plugin::updateOption('kscape_use_ssl', $request->kscape_use_ssl);
     }
 
@@ -168,14 +176,65 @@ class KscapeMediaSyncService implements MediaSyncInterface
             $result = str_replace("\r", '', $result);
             //  02/0/000:TITLE_NAME:West Side Story:/92
             $split = explode(':', $result);
-            $title = $split[2];
+            $title = str_replace('\\', '', $split[2]);
             // Get meta  data
             // TMDB API
-            $searchResults = $this->posterSearch($title);
+            $playingData = $this->getHighlightedSelection();
+            $searchResults = $this->posterSearch($title.' ('.$playingData['year'].')');
             $result = $this->posterMeta($searchResults[0]['id']);
+            $result['kscape_poster'] = $playingData['poster'];
+            $result['search_title'] = $title.' ('.$playingData['year'].')';
             socket_close($this->socket);
         }
         return $result;
+    }
+
+    private function getHighlightedSelection()
+    {
+        $message = $this->kscapeSettings['kscape_cpdid']."/0/GET_HIGHLIGHTED_SELECTION:\n";
+        socket_write($this->socket, $message, strlen($message));
+        $result = socket_read($this->socket, 1024);
+        $result = str_replace("\n", '', $result);
+        $result = str_replace("\r", '', $result);
+        // status:HIGHLIGHTED_SELECTION:handle:
+        $split = explode(':', $result);
+        $handle = $split[2];
+        return $this->getContentDetails($handle);
+    }
+
+    private function getContentDetails($handle)
+    {
+        //GET_CONTENT_DETAILS:handle:passcode:
+        $passcode = strlen($this->kscapeSettings['kscape_passcode']) ? $this->kscapeSettings['kscape_passcode'] : '';
+        $message = $this->kscapeSettings['kscape_cpdid']."/0/GET_CONTENT_DETAILS:$handle:$passcode:\n";
+        socket_write($this->socket, $message, strlen($message));
+        sleep(2);
+        $results = socket_read($this->socket, 1024);
+        $linesArr = explode("\n", $results);
+        \Log::info($linesArr);
+        return $this->getDetails($linesArr);
+    }
+
+    private function getDetails($linesArr)
+    {
+        $arr = [
+            'poster' => false,
+            'year' => false,
+        ];
+
+        foreach ($linesArr as $line) {
+            if (strpos($line, ':Year:')) { // 02/0/000:CONTENT_DETAILS:6:Year:2017:
+                $splits = explode(':', $line);
+                $arr['year'] = $splits[4];
+            }
+            if (strpos($line, ':HiRes_cover_URL:')) { // 02/0/000:CONTENT_DETAILS:4:HiRes_cover_URL:http\\:\\/\\/192.168.86.23\\/panelcoverarthr\\/ec995295b74d6076\\/40251715.jpg:/68
+                $splits = explode(':', $line);
+                $arr['poster'] = str_replace('\\', '', $splits[4].':'.$splits[5]);
+                ;
+            }
+        }
+
+        return $arr;
     }
 
     public function syncMedia()

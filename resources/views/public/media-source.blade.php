@@ -67,6 +67,20 @@
 			<div id="kscape-usernameHelp" class="text-gray-400 text-sm">Optional. Only if you have a passcode setup in Kaleidescape</div>
 		</div>
 
+        <div class="mb-5">
+            <label for="kscape-useposter" class="block mb-2 font-bold flex items-center"
+                >
+            <input
+                type="checkbox"
+                id="kscape-useposter"
+                aria-describedby="kscape-useposterHelp"
+                name="kscape_use_poster"
+                value="1" @checked(old('kscape_use_poster', $options['kscape_use_poster']))
+            /> <span class="ml-2">Use Kaleidescape's Posters over TMDB</span>
+            </label>
+            <div id="kscape-useposterHelp" class="text-gray-400 text-sm">Use the poster images from the Kaleidescape device over the TMDB poster images.</div>
+        </div>
+
         <!--
 		<div class="mb-5">
 			<label for="kscape-password" class="block mb-2 font-bold"

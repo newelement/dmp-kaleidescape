@@ -27,6 +27,7 @@ function getNowPlaying() {
                 let playing = {
                     mediaSource: 'dmp-kscape',
                     mediaType: 'movie',
+                    poster: kscapeSettings.kscape_use_poster ? data.kscpe_poster : data.image,
                     audienceRating: data.audience_rating,
                     contentRating: data.mpaa_rating,
                     duration: data.runtime,
