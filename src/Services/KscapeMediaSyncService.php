@@ -147,18 +147,21 @@ class KscapeMediaSyncService implements MediaSyncInterface
     public function getStatus()
     {
         $status = 'stopped';
-        $connected = $this->tcpConnect();
-        if ($connected) {
-            $message = $this->kscapeSettings['kscape_cpdid']."/0/GET_PLAY_STATUS:\n";
-            socket_write($this->socket, $message, strlen($message));
-            $result = socket_read($this->socket, 1024);
-            $result = str_replace("\n", '', $result);
-            $result = str_replace("\r", '', $result);
-            // 02/0/000:PLAY_STATUS:2:0:01:09385:02651:010:00117:00013:/52
-            $split = explode(':', $result);
-            $code = (int) $split[2];
-            $status = $code === 2 ? 'playing' : 'stopped';
-            socket_close($this->socket);
+        try {
+            $connected = $this->tcpConnect();
+            if ($connected) {
+                $message = $this->kscapeSettings['kscape_cpdid']."/0/GET_PLAY_STATUS:\n";
+                socket_write($this->socket, $message, strlen($message));
+                $result = socket_read($this->socket, 1024);
+                $result = str_replace("\n", '', $result);
+                $result = str_replace("\r", '', $result);
+                // 02/0/000:PLAY_STATUS:2:0:01:09385:02651:010:00117:00013:/52
+                $split = explode(':', $result);
+                $code = (int) $split[2];
+                $status = $code === 2 ? 'playing' : 'stopped';
+                socket_close($this->socket);
+            }
+        } catch (\Exception $e) {
         }
 
         return $status;
@@ -167,24 +170,27 @@ class KscapeMediaSyncService implements MediaSyncInterface
     public function nowPlaying()
     {
         $result = false;
-        $connected = $this->tcpConnect();
-        if ($connected) {
-            $message = $this->kscapeSettings['kscape_cpdid']."/0/GET_PLAYING_TITLE_NAME:\n";
-            socket_write($this->socket, $message, strlen($message));
-            $result = socket_read($this->socket, 1024);
-            $result = str_replace("\n", '', $result);
-            $result = str_replace("\r", '', $result);
-            //  02/0/000:TITLE_NAME:West Side Story:/92
-            $split = explode(':', $result);
-            $title = str_replace('\\', '', $split[2]);
-            // Get meta  data
-            // TMDB API
-            $playingData = $this->getHighlightedSelection();
-            $searchResults = $this->posterSearch($title.' ('.$playingData['year'].')');
-            $result = $this->posterMeta($searchResults[0]['id']);
-            $result['kscape_poster'] = $playingData['poster'];
-            $result['search_title'] = $title.' ('.$playingData['year'].')';
-            socket_close($this->socket);
+        try {
+            $connected = $this->tcpConnect();
+            if ($connected) {
+                $message = $this->kscapeSettings['kscape_cpdid']."/0/GET_PLAYING_TITLE_NAME:\n";
+                socket_write($this->socket, $message, strlen($message));
+                $result = socket_read($this->socket, 1024);
+                $result = str_replace("\n", '', $result);
+                $result = str_replace("\r", '', $result);
+                //  02/0/000:TITLE_NAME:West Side Story:/92
+                $split = explode(':', $result);
+                $title = str_replace('\\', '', $split[2]);
+                // Get meta  data
+                // TMDB API
+                $playingData = $this->getHighlightedSelection();
+                $searchResults = $this->posterSearch($title.' ('.$playingData['year'].')');
+                $result = $this->posterMeta($searchResults[0]['id']);
+                $result['kscape_poster'] = $playingData['poster'];
+                $result['search_title'] = $title.' ('.$playingData['year'].')';
+                socket_close($this->socket);
+            }
+        } catch (\Exception $e) {
         }
         return $result;
     }
